@@ -264,7 +264,7 @@ var filterStream = require('./filterstream')
   , PassThrough = require('readable-stream').PassThrough
   , WriteStream = require('./writestream')
   , levelWriteStream = require('level-write-stream')
-  , levelup = require('levelup')
+  , levelup = require('level')
   , Leveljs
   , searchStream
   , doAction
@@ -275,7 +275,7 @@ var joinDefaults = {
 };
 
 module.exports = function levelgraph(leveldb, options, readyCallback) {
-  
+
   var name = leveldb
     , db
     , callTheCallback
@@ -290,7 +290,7 @@ module.exports = function levelgraph(leveldb, options, readyCallback) {
   callTheCallback = !!readyCallback;
 
   options = options || {};
-  
+
   if (typeof leveldb === 'string') {
     // do not call the callback immediately
     // if we do not have a level() instance
@@ -2313,13 +2313,13 @@ module.exports = WriteStream;
         };
         return q;
     };
-    
+
     async.priorityQueue = function (worker, concurrency) {
-        
+
         function _compareTasks(a, b){
           return a.priority - b.priority;
         };
-        
+
         function _binarySearch(sequence, item, compare) {
           var beg = -1,
               end = sequence.length - 1;
@@ -2333,7 +2333,7 @@ module.exports = WriteStream;
           }
           return beg;
         }
-        
+
         function _insert(q, data, priority, callback) {
           if (!q.started){
             q.started = true;
@@ -2355,7 +2355,7 @@ module.exports = WriteStream;
                   priority: priority,
                   callback: typeof callback === 'function' ? callback : null
               };
-              
+
               q.tasks.splice(_binarySearch(q.tasks, item, _compareTasks) + 1, 0, item);
 
               if (q.saturated && q.tasks.length === q.concurrency) {
@@ -2364,15 +2364,15 @@ module.exports = WriteStream;
               async.setImmediate(q.process);
           });
         }
-        
+
         // Start with a normal queue
         var q = async.queue(worker, concurrency);
-        
+
         // Override push to accept second parameter representing priority
         q.push = function (data, priority, callback) {
           _insert(q, data, priority, callback);
         };
-        
+
         // Remove unshift function
         delete q.unshift;
 
@@ -5110,19 +5110,19 @@ util.inherits(Level, AbstractLevelDOWN)
 
 Level.prototype._open = function(options, callback) {
   var self = this
-    
+
   var idbOpts = {
     storeName: this.location,
     autoIncrement: false,
     keyPath: null,
     onStoreReady: function () {
       callback && callback(null, self.idb)
-    }, 
+    },
     onError: function(err) {
       callback && callback(err)
     }
   }
-  
+
   xtend(idbOpts, options)
   this.IDBOptions = idbOpts
   this.idb = new IDB(idbOpts)
@@ -5189,14 +5189,14 @@ Level.prototype._batch = function (array, options, callback) {
   var copiedOp
   var currentOp
   var modified = []
-  
+
   if (array.length === 0) return setTimeout(callback, 0)
-  
+
   for (i = 0; i < array.length; i++) {
     copiedOp = {}
     currentOp = array[i]
     modified[i] = copiedOp
-    
+
     var converted = this.convertEncoding(currentOp.key, currentOp.value, options)
     currentOp.key = converted.key
     currentOp.value = converted.value
@@ -6235,7 +6235,7 @@ function extend() {
 
       var hasSuccess = false,
           result = null;
-      
+
       var getTransaction = this.db.transaction([this.storeName], this.consts.READ_ONLY);
       getTransaction.oncomplete = function () {
         var callback = hasSuccess ? onSuccess : onError;
@@ -6313,7 +6313,7 @@ function extend() {
       };
       batchTransaction.onabort = onError;
       batchTransaction.onerror = onError;
-      
+
       var count = dataArray.length;
       var called = false;
       var hasSuccess = false;
